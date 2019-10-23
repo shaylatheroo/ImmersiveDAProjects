@@ -101,7 +101,7 @@ subtotal = 0
 salesTax = 0
 collectItems = True
 while collectItems==True:
-    itemName = input("Enter item name: ")
+    itemName = input("\nEnter item name: ")
     itemPrice = input("Price: ")
     itemQuantity = input("Quantity: ") 
     itemSubtotal = float(itemPrice) * int(itemQuantity)
@@ -119,19 +119,19 @@ while collectItems==True:
 
 totalPaid = subtotal + salesTax
 
-print("-----------------------------------------------------")
+print("\n-----------------------------------------------------")
 print("Customer name: " + customerName)
 print("Address: " + customerAddress)
 print("Date: " + purchaseDate)
 print("Account number: " + customerAccount)
-print("-----------------------------------------------------")
+print("-----------------------------------------------------\n")
 print('{:<16s}{:<16s}{:<16s}{:<16s}{:<9s}'.format('Item Name','Quantity','Price','Cost','Taxable'))
 print("=========================================================================")
 
 for x, y in itemContainer.items():
     print('{:<16s}{:<16s}{:<16s}{:<16s}{:<9s}'.format(x,str(int(y[0])),"$"+"{:.2f}".format(float(y[1])),"$"+"{:.2f}".format(float(y[2])),y[3]))
 
-print("Subtotal: $"+"{:.2f}".format(subtotal))
+print("\nSubtotal: $"+"{:.2f}".format(subtotal))
 print("Sales Tax: $"+"{:.2f}".format(salesTax))
-print("-------------------------------------------------------------------------")
+print("\n-------------------------------------------------------------------------")
 print("Total: $"+"{:.2f}".format(totalPaid))
