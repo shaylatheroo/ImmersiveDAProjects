@@ -24,65 +24,231 @@ room			contains				doors to (direction & room #)
 #8	secret room	piles of gold			room w6
 '''
 
+'''
+Why am I confounded by the lack of treasure in the vault and the lack of need to find a combination to enter the vault.
+One of the rooms should contain the vault key or combination, so you have to visit that room to be able to access the vault.
+'''
+import random
+
 def room1():
-	roomName = 'foyer'
-	contents = ['dead scorpion']
-	exits = {
-	'n' : 2
-	}
+    roomName = 'foyer'
+    contents = ['a dead scorpion']
+    exits = {
+    'n' : 2
+    }
+    return roomName, contents, exits
 
 def room2():
-	roomName = 'front room'
-	contents = ['piano']
-	exits = {
-	's' : 1,
-	'w' : 3,
-	'e' : 4
-	}
+    roomName = 'front room'
+    contents = ['a piano']
+    exits = {
+    's' : 1,
+    'w' : 3,
+    'e' : 4
+    }
+    return roomName, contents, exits
 
 def room3():
-	roomName = 'library'
-	contents = ['spiders']
-	exits = {
-	'e' : 2,
-	'n' : 5
-	}
+    roomName = 'library'
+    contents = ['spiders']
+    exits = {
+    'e' : 2,
+    'n' : 5
+    }
+    return roomName, contents, exits
 
 def room4():
-	roomName = 'kitchen/"food library"'
-	contents = ['bats']
-	exits = {
-	'w' : 2,
-	'n' : 7
-	}
+    roomName = 'kitchen/"food library"'
+    contents = ['bats']
+    exits = {
+    'w' : 2,
+    'n' : 7
+    }
+    return roomName, contents, exits
 
 def room5():
-	roomName = 'dining room'
-	contents = ['dust','empty box']
-	exits = {
-	's' : 3
-	}
+    roomName = 'dining room'
+    contents = ['dust','an empty box']
+    exits = {
+    's' : 3
+    }
+    return roomName, contents, exits
 
-def room6():
-	roomName = 'vault'
-	contents = ['3 walking skeletons']
-	exits = {
-	'e' : 7,
-	'e' : 8
-	}
-	#don't forget that this room needs special conditions regarding which exits they can find
+def room6(secretRoom): 
+    roomName = 'vault'
+    contents = ['3 walking skeletons']
+    exitsTrue = {
+    'e1' : 7,
+    'e2' : 8
+    }
+    exitsFalse = {
+    'e' : 7
+    }
+    if secretRoom ==True:
+        exits = exitsTrue
+    else:
+        exits = exitsFalse
+    return roomName, contents, exits
 
 def room7():
-	roomName = 'parlor'
-	contents = ['treasure chest']
-	exits = {
-	'w' : 6,
-	's' : 4
-	}
+    roomName = 'parlor'
+    contents = ['a treasure chest']
+    exits = {
+    'w' : 6,
+    's' : 4
+    }
+    return roomName, contents, exits
 
 def room8():
-	roomName = 'secret room'
-	contents = ['piles of gold']
-	exits = {
-	'w' : 6
-	}
+    roomName = 'secret room'
+    contents = ['piles of gold']
+    exits = {
+    'w' : 6
+    }
+    return roomName, contents, exits
+
+def roomData(currentRoom, secretRoom):
+    if currentRoom ==1:
+        return room1()
+    elif currentRoom == 2:
+        return room2()
+    elif currentRoom == 3:
+        return room3()
+    elif currentRoom == 4:
+        return room4()
+    elif currentRoom == 5:
+        return room5()
+    elif currentRoom == 6:
+        return room6(secretRoom)
+    elif currentRoom == 7:
+        return room7()
+    elif currentRoom == 8:
+        return room8()
+    
+def describeRoom(contents):
+    returnValue = ''
+    iterator = 0
+    if len(contents) > 1:
+        return contents[0]
+    else:
+        for x in contents:
+            returnValue += x
+            while iterator < (len(contents)-1):
+                returnValue += ' and '
+                iterator+=1
+        return returnValue
+    
+def describeRoomExits(exits):
+    returnValue = ''
+    numberOfExits = len(exits)
+
+    if 'n' in exits:
+        returnValue += 'north'
+        if numberOfExits > 1:
+            returnValue += ' and '
+            numberOfExits -= 1
+    if 's' in exits:
+        returnValue += 'south'
+        if numberOfExits > 1:
+            returnValue += ' and '
+            numberOfExits -= 1
+    if 'e' in exits:
+        returnValue += 'east'
+        if numberOfExits > 1:
+            returnValue += ' and '
+            numberOfExits -= 1
+    if 'w' in exits:
+        returnValue += 'west'
+        if numberOfExits > 1:
+            returnValue += ' and '
+            numberOfExits -= 1
+    if 'e1' in exits: #this means we are running under the condition that the secret room is found, where there are technically two doors to the east
+        returnValue += 'east'
+        
+    return returnValue
+
+def roomMovement(userChoice, currentRoom, exits):
+    userChoice = userChoice.lower()
+    nextRoom = 0
+    splitUserChoice = userChoice.split()
+    isValid = True
+    if 'quit' in splitUserChoice:
+        userChoice = 'end'
+        return userChoice, nextRoom, isValid
+    elif 'end' in splitUserChoice:
+        userChoice = 'end'
+        return userChoice, nextRoom, isValid
+    elif 'leave' in splitUserChoice:
+        userChoice = 'end'
+        return userChoice, nextRoom, isValid
+    elif 'north' in splitUserChoice:
+        userChoice = 'n'
+    elif 'n' in splitUserChoice:
+        userChoice = 'n'
+    elif 'south' in splitUserChoice:
+        userChoice = 's'
+    elif 's' in splitUserChoice:
+        userChoice = 's'
+    elif 'secret' in splitUserChoice:
+        userChoice = 'e2'
+    elif 'parlor' in splitUserChoice:
+        userChoice = 'e1'
+    elif 'east' in splitUserChoice:
+        userChoice = 'e'
+    elif 'e' in splitUserChoice:
+        userChoice = 'e'
+    elif 'w' in splitUserChoice:
+        userChoice = 'w'
+    elif 'west' in splitUserChoice:
+        userChoice = 'w'
+    
+    isValid, nextRoom = validateChoice(userChoice, exits)
+    
+    return userChoice, nextRoom, isValid
+
+def validateChoice(userChoice, exits):
+    isValid = False
+    nextRoom = 0
+    
+    if userChoice in exits:
+        isValid = True
+        nextRoom = int(exits.get(userChoice))
+    
+    return isValid, nextRoom
+
+    
+#Initializing a bool for whether the user has found the secret room; it is currently false, once it is found, we'll toggle to true.
+#Because Room 6 has two rooms accessible via going East, while this is False the game will need to only display the option to go East once.
+#Once the secret room is found, it should display two options, East to Parlor or East to Secret Room.
+secretRoom = False
+currentRoom = 1
+userChoice = ''
+nextRoom = 0
+isValid = True
+#userChoice is going to be holding our quit condition, such as a request to leave the house or simply quit
+
+while userChoice != 'end':
+    if currentRoom == 6:
+        result = random.choices([True, False], weights=[1,4], k=1)
+        secretRoom = result[0]
+    #thinking I should just always pass a "current room" and the "secret room" value, regardless, to maximize reuse
+    roomName, contents, exits = roomData(currentRoom, secretRoom)
+    print("\nYou find yourself in the " + roomName + " of an old castle.")
+    print("The room contains " + describeRoom(contents) + ".")
+    if len(exits) == 1:
+        print("You see a door to the " + describeRoomExits(exits) + ".")
+    else:
+        print("You see " + str(len(exits)) + " doors to the " + describeRoomExits(exits) + ".")
+    if currentRoom == 6 and secretRoom == True:
+        print("The two doors to the east lead to the parlor and... the secret room!")
+    userChoice = input("Where would you like to go? ")
+    userChoice, nextRoom, isValid = roomMovement(userChoice, currentRoom, exits)
+    while isValid != True:
+        userChoice = input("Your choice is not possible and the home groans. Which direction would you like to go? ")
+        userChoice, nextRoom, isValid = roomMovement(userChoice, currentRoom, exits)
+    currentRoom = nextRoom
+    
+print("\nYou have chosen to leave these musty, cursed halls...")
+result = random.choices([True, False], weights=[1,4], k=1)
+if result[0]==True:
+    print("You have a strange sense, as you leave the castle behind, that a spectral presense follows you home...")
