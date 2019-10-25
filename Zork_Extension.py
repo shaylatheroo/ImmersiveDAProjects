@@ -28,6 +28,28 @@ room			contains				doors to (direction & room #)
 Why am I confounded by the lack of treasure in the vault and the lack of need to find a combination to enter the vault.
 One of the rooms should contain the vault key or combination, so you have to visit that room to be able to access the vault.
 '''
+
+'''
+Take the Zork program you completed in the previous assignment and extend it allow for 
+each room to have a random amount of money between $0 and $1000.00, that you can take, 
+adding it to your personal total. If the money is taken it is not in the room anymore.
+
+Update the program so that every time it tells you about a room it also tells you how much money you have.
+
+Once you implement all that add a character which you shall name to the room. 
+The character will be randomly assigned to one room when the game begins. 
+For example the character will appear in the kitchen. Then when the player appears 
+in the kitchen then the character will try to take their money. The character will 
+take all the money the player has gathered so far.
+
+When you exit the program it will print out the number of rooms you have visited, 
+the items you have seen (like skeletons, pianos, and dusty boxes), and the amount of money you have.
+'''
+
+'''
+I find the term "try" to be very important regarding the random encounter. So, I made it
+possible that you encounter "Jeff" and he be unsuccessful in taking your gold.
+'''
 import random
 
 def room1():
@@ -181,6 +203,9 @@ def roomMovement(userChoice, currentRoom, exits):
     elif 'leave' in splitUserChoice:
         userChoice = 'end'
         return userChoice, nextRoom, isValid
+    elif 'stop' in splitUserChoice:
+        userChoice = 'end'
+        return userChoice, nextRoom, isValid
     elif 'north' in splitUserChoice:
         userChoice = 'n'
     elif 'n' in splitUserChoice:
@@ -216,10 +241,7 @@ def validateChoice(userChoice, exits):
     
     return isValid, nextRoom
 
-    
-#Initializing a bool for whether the user has found the secret room; it is currently false, once it is found, we'll toggle to true.
-#Because Room 6 has two rooms accessible via going East, while this is False the game will need to only display the option to go East once.
-#Once the secret room is found, it should display two options, East to Parlor or East to Secret Room.
+
 secretRoom = False
 currentRoom = 1
 userChoice = ''
@@ -230,23 +252,19 @@ JeffsRoom = random.randint(1, 8)
 roomsSeen=0
 
 roomTracking = {
-    1 : [False, random.randint(0, 1000)],
-    2 : [False, random.randint(0, 1000)],
-    3 : [False, random.randint(0, 1000)],
-    4 : [False, random.randint(0, 1000)],
-    5 : [False, random.randint(0, 1000)],
-    6 : [False, random.randint(0, 1000)],
-    7 : [False, random.randint(0, 1000)],
-    8 : [False, random.randint(0, 1000)]
+    1 : [False, random.randint(0, 1000), ''],
+    2 : [False, random.randint(0, 1000), ''],
+    3 : [False, random.randint(0, 1000), ''],
+    4 : [False, random.randint(0, 1000), ''],
+    5 : [False, random.randint(0, 1000), ''],
+    6 : [False, random.randint(0, 1000), ''],
+    7 : [False, random.randint(0, 1000), ''],
+    8 : [False, random.randint(0, 1000), '']
 }
-#userChoice is going to be holding our quit condition, such as a request to leave the house or simply quit
 
-'''
-so now that we've gotten the tracking initialized, and Jeff is getting set to a room, we just need to add the
-logic for the Jeff encounter where there's a 50/50 chance of losing your gold, as well as logic that lets the
-user take the gold from each room, track/print that running value, and then upon entering the room setting the
-bool to true
-'''
+print("On your walk along a wooded trail, you come upon an old, abandoned castle.")
+print("Perhaps against your better judgement, you've decided to have a look around.")
+print("After a little work undoing a jammed front door...")
 
 while userChoice != 'end':
     if currentRoom == 6:
@@ -254,46 +272,85 @@ while userChoice != 'end':
         secretRoom = result[0]
     #thinking I should just always pass a "current room" and the "secret room" value, regardless, to maximize reuse
     roomName, contents, exits = roomData(currentRoom, secretRoom)
-    print("\nYou find yourself in the " + roomName + " of an old castle.")
+    
+    '''
+    This portion will update the roomTracking dictionary's list for the currentRoom to state True,
+    indicating the room has been seen for later use. It's simply set to True rather than double-checking
+    if the room has ever been seen simply because that doesn't really matter. We won't cause any issues
+    unless we wanted the output to look different if the room's been seen before.
+    '''
+    (roomTracking[currentRoom])[0] = True
+    (roomTracking[currentRoom])[2] = describeRoom(contents)
+    
+    print("\nYou find yourself in the " + roomName + ".")
     print("The room contains " + describeRoom(contents) + ".")
+    if (roomTracking[currentRoom])[1] > 0:
+        print("There is $" + str((roomTracking[currentRoom])[1]) + " of gold available to take from the room.")
+    print("You're currently carrying $" + str(userGold) + ".")
+
+    if (roomTracking[currentRoom])[1] > 0:
+        takeGold = input("Would you like to take the gold? ")
+        if takeGold.lower() == 'yes' or takeGold.lower() == 'y':
+            userGold += (roomTracking[currentRoom])[1]
+            (roomTracking[currentRoom])[1] = 0
+            print("You're now carrying $" + str(userGold) + ".")
+            
+    '''
+    Tossing in the Jeff encounter right here. He'll attack from the shadows as you've mulled over your choice
+    regarding the money from the room, but only if you're carrying any money to begin with (kind of silly otherwise).
+    '''
+    
+    if currentRoom == JeffsRoom:
+        print("\nYou feel someone watching you from the shadows of the room...")
+        #This essentially makes it so the encounter waits to trigger when you actually have gold
+        #Then, it triggers once. Regardless of robbery success, he leaves after.
+        #We *could* reset this logic to assign a failed robbery to a new random room.
+        if userGold > 0:
+            print("'I'm Jeff, and that's my gold!' is shouted from behind you!")
+            JeffSuccess = random.choice([True, False])
+            if JeffSuccess == True:
+                print("Jeff has robbed you! He took the $" + str(userGold) + " you had gathered!")
+                userGold = 0
+                print("The man has run back off into the shadows, cackling with glee. You think he's left the mansion.")
+                JeffsRoom = 0
+                print("You're back to $" + str(userGold) + " gold in your pocket, but at least you're alive!")
+            else:
+                print("Jeff has attempted to rob you, lunging your way! You were quick on your feet, though, and avoided his attack.")
+                print("The strange man hisses at you before running away. You think you hear his footsteps carry him out of the mansion.")
+                JeffsRoom = 0
+                print("You still have the $" + str(userGold) + " gold in your pocket.")
+    
     if len(exits) == 1:
-        print("You see a door to the " + describeRoomExits(exits) + ".")
+        print("\nYou see a door to the " + describeRoomExits(exits) + ".")
     else:
-        print("You see " + str(len(exits)) + " doors to the " + describeRoomExits(exits) + ".")
+        print("\nYou see " + str(len(exits)) + " doors to the " + describeRoomExits(exits) + ".")
     if currentRoom == 6 and secretRoom == True:
         print("The two doors to the east lead to the parlor and... the secret room!")
+    
     userChoice = input("Where would you like to go? ")
     userChoice, nextRoom, isValid = roomMovement(userChoice, currentRoom, exits)
     while isValid != True:
-        userChoice = input("Your choice is not possible and the home groans. Which direction would you like to go? ")
+        userChoice = input("Your choice is not possible and the very stones of the mansion groan. Which direction would you like to go? ")
         userChoice, nextRoom, isValid = roomMovement(userChoice, currentRoom, exits)
     currentRoom = nextRoom
     
 print("\nYou have chosen to leave these musty, cursed halls...")
-'''
-We'll need to toss in something to print out the number of unique rooms visited, total gold,
-and a list of the items in the rooms
 
-This should utilize roomData, as it will give us the contents if we pass the room number, and
-since the room number is stored in our dictionary it's an easy pass. We'll have superfluous data
-returned, but that isn't the end of the world. Run roomData, then pass the contents off to
-describeRoom for a result that's more print-friendly
-'''
+roomContentsSeen = ''
 
 for x in roomTracking.values():
     if x[0]==True:
         roomsSeen+=1
-
-roomContentsSeen = ''
+        roomContentsSeen = roomContentsSeen + x[2] + "\n"
         
 print("You've seen " + str(roomsSeen) + " rooms of this desolate place... of a possible 8.")
-print("In those rooms, you saw many things: \n" + roomContentsSeen + "\n... Maybe some of it is best forgotten")
+print("In those rooms, you saw many things: \n" + roomContentsSeen + "... Maybe some of it is best forgotten?")
 
 if userGold > 0:
-    print("On the bright side, you leave $" + userGold + " richer. Hopefully the gold isn't cursed...")
+    print("\nOn the bright side, you leave $" + str(userGold) + " richer. Hopefully the gold isn't cursed...")
 else:
-    print("Sadly, you leave none the richer, either by force or by choice.")
+    print("\nYou leave none the richer - financially, anyways - either by force or by choice.")
 
 result = random.choices([True, False], weights=[1,4], k=1)
 if result[0]==True:
-    print("You have a strange sense, as you leave the castle behind, that a spectral presense follows you home...")
+    print("But... you have a strange sense, as you leave the castle behind, that a spectral presense follows you home...")
