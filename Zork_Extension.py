@@ -262,6 +262,19 @@ roomTracking = {
     8 : [False, random.randint(0, 1000), '']
 }
 
+print("Welcome to my text adventure game!\nHere are some tips to help you navigate the game.")
+print("Unless there are multiple doors in the same direction, you can type the following commands to go to the next room:")
+print("north / n\nsouth / s\neast / e\nwest / w")
+print("Your commands aren't case-sensitive, so don't worry about capitalization!")
+print("Should you find a room with multiple doors in the same direction, you'll need to\nenter a name you've been given for the possible rooms where the two doors lead.")
+print("To end the program, you can enter one of the following commands when you're asked where you would like to go:")
+print("quit / end / leave / stop")
+print("Finally, you'll be asked if you'd like to take things with you! At these prompts, you can enter yes / y or no / n.")
+print("The game will assume a 'no' value should the input not be interpretted as 'yes' or 'y.'")
+print("Good fun, have luck!")
+
+print("\n====================================================\n")
+
 print("On your walk along a wooded trail, you come upon an old, abandoned castle.")
 print("Perhaps against your better judgement, you've decided to have a look around.")
 print("After a little work undoing a jammed front door...")
